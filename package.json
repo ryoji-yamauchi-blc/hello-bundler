@@ -2,7 +2,7 @@
   "name": "@ryoji-yamauchi-blc/hello-bundler",
   "version": "1.0.0",
   "description": "dead simple module bundler",
-  "main": "main.js",
+  "main": "dist/main.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:ryoji-yamauchi-blc/hello-bundler.git"
@@ -10,6 +10,9 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "tsx src/main.ts src/__tests__/target/basic/entry.js",
     "test": "jest",
