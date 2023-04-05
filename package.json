@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx src/main.ts",
+    "dev": "tsx src/main.ts src/__tests__/target/basic/entry.js",
     "test": "jest",
     "build": "tsc"
   },
@@ -12,7 +12,8 @@
   "author": "",
   "license": "ISC",
   "volta": {
-    "node": "18.15.0"
+    "node": "18.15.0",
+    "npm": "9.6.3"
   },
   "devDependencies": {
     "@babel/generator": "^7.21.4",
