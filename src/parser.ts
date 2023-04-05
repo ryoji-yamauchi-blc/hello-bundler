@@ -13,7 +13,8 @@ import { ModuleIdIssuer } from "./ModuleIdIssuer";
 export const parse = (
   moduleIdIssuer: ModuleIdIssuer,
   code: string,
-  basePath = ""
+  basePath = "",
+  nodeModulePath = "node_modules"
 ) => {
   const dependencies: Module[] = [];
   const allImportedNames: ImportedNames[] = [];
@@ -30,9 +31,12 @@ export const parse = (
     ImportDeclaration(nodePath) {
       const { node } = nodePath;
       const modulePath = node.source.value as string;
-      // 相対パスから絶対パスに変換する
-      // モジュールのパスは、パース対象のファイルを基準とした相対パスになっているので。
-      const absoluteModulePath = `${path.join(basePath, modulePath)}.js`;
+
+      const absoluteModulePath = toFixPath(
+        modulePath,
+        basePath,
+        nodeModulePath
+      );
 
       const dependenciesModuleId =
         moduleIdIssuer.nextIdentity(absoluteModulePath);
@@ -48,15 +52,16 @@ export const parse = (
         })
         .filter((v) => !!v) as string[];
 
+      dependencies.push({
+        id: dependenciesModuleId,
+        path: absoluteModulePath,
+        isNodeModule: isNodeModule(modulePath),
+      });
+
       const importedNames = new Map(
         importedName.map((v) => [v, dependenciesModuleId])
       );
 
-      dependencies.push({
-        id: dependenciesModuleId,
-        path: absoluteModulePath,
-        importedNames,
-      });
       allImportedNames.push(importedNames);
     },
   });
@@ -66,4 +71,29 @@ export const parse = (
   }, new Map() as ImportedNames);
 
   return { ast, dependencies, allImportedNamesMap };
+};
+
+const isNodeModule = (modulePath: string) => {
+  // 相対パス以外はnode_modulesと判断する
+  return modulePath[0] !== ".";
+};
+
+/**
+ * モジュールのパスを、entryポイントからの相対パスへ変換する。
+ * node_modulesの場合は、node_modules/moduleのパスに変換する。
+ * @param modulePath
+ * @param basePath
+ */
+const toFixPath = (
+  modulePath: string,
+  basePath: string,
+  nodeModulePath: string
+) => {
+  // 内部モジュール
+  if (!isNodeModule(modulePath)) {
+    return `${path.join(basePath, modulePath)}.js`;
+  }
+
+  // 外部モジュール(eg node_modules)
+  return path.join(nodeModulePath, modulePath);
 };

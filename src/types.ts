@@ -13,7 +13,8 @@ export type Module = {
   id: number;
   // モジュールの絶対パス
   path: string;
-  importedNames: ImportedNames;
+  // node_modulesに依存しているパッケージの場合true
+  isNodeModule: boolean;
 };
 
 /**

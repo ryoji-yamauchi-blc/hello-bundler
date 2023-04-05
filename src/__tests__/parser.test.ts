@@ -8,6 +8,7 @@ describe("parser", () => {
     const code = `
     import { foo } from './foo'
     import { bar } from './bar'
+    import { baz } from 'baz'
     `;
 
     const { dependencies } = parse(moduleIdIssuer, code);
@@ -15,12 +16,17 @@ describe("parser", () => {
       {
         id: 2,
         path: "foo.js",
-        importedNames: new Map([["foo", 2]]),
+        isNodeModule: false,
       },
       {
         id: 3,
         path: "bar.js",
-        importedNames: new Map([["bar", 3]]),
+        isNodeModule: false,
+      },
+      {
+        id: 4,
+        path: "node_modules/baz",
+        isNodeModule: true,
       },
     ]);
   });
